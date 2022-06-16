@@ -1,2 +1,5 @@
 flask
 pylint
+python-dotenv
+pydocstyle
+pycodestyle
