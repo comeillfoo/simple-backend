@@ -1,4 +1,5 @@
 flask
+celery[redis]
 pylint
 python-dotenv
 pydocstyle
