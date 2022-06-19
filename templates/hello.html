@@ -1,15 +1,71 @@
 <!DOCTYPE html>
 
 <html>
-    <head lang="EN-en">
-        <title>Hello page</title>
-        <meta charset="utf-8" />
-        <link href="{{url_for('static', filename='clear.css')}}" rel="stylesheet" />
-        <link href="{{url_for('static', filename='main.css')}}" rel="stylesheet" />
-    </head>
 
-    <body>
-        <h1>{{ name }} says:</h1>
-        <p>Hello, visitor!</p>
-    </body>
+<head lang="EN-en">
+    <title>Hello page</title>
+    <meta charset="utf-8" />
+    <link href="{{url_for('static', filename='clear.css')}}" rel="stylesheet" />
+    <link href="{{url_for('static', filename='main.css')}}" rel="stylesheet" />
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <h1>{{ name }} says:</h1>
+    <p>Hello, visitor! Provide some details</p>
+
+    <form id="operands-form">
+        <fieldset>
+            <label>First term: <span id="operands-form__first-term--value"></span></label>
+            <input id="operands-form__first-term" type="range" min="-15" max="15" />
+        </fieldset>
+        <fieldset>
+            <label>Second term: <span id="operands-form__second-term--value"></span></label>
+            <input id="operands-form__second-term" type="range" min="-15" max="15" />
+        </fieldset>
+        <input id="operands-form__evaluate-btn" type="submit" value="eval" />
+    </form>
+    <h2>Result is: <span id="result-number"></span></h2>
+
+    <script>
+        $('document').ready(() => {
+            $('#operands-form').on('submit', (e) => {
+                e.preventDefault();
+            });
+
+            const socket = io.connect('127.0.0.1:5000');
+
+            $('#operands-form__evaluate-btn').on('click', () => {
+                const f = $('#operands-form__first-term').val();
+                const s = $('#operands-form__second-term').val();
+                console.log(`adding ${f} + ${s}`);
+                socket.send({
+                    'first_term': f,
+                    'second_term': s
+                });
+            });
+
+            socket.on('message', (r) => {
+                console.log(`got something from the backend ${r}`);
+                $('#result-number').text(r);
+            });
+
+            $('#operands-form__first-term').on('input change', () => {
+                const d = $('#operands-form__first-term').val();
+                console.log(`first term changed: ${d}`);
+                $('#operands-form__first-term--value').text(d);
+            });
+
+            $('#operands-form__second-term').on('input change', () => {
+                const d = $('#operands-form__second-term').val();
+                console.log(`second term changed: ${d}`);
+                $('#operands-form__second-term--value').text(d);
+            });
+        });
+    </script>
+</body>
+
 </html>
